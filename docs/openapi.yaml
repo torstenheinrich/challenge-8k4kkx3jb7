@@ -1,0 +1,101 @@
+openapi: 3.0.0
+info:
+  title: This is the API documentation for the coding challenge for Software Engineering, Java at Redcare Pharmacy
+  version: 0.0.1
+paths:
+  /repositories:
+    get:
+      summary: The endpoint to retrieve a list of popular repositories.
+      description: |
+        The endpoint to retrieve a list of popular repositories. It currently only returns public GitHub repositories
+        and sorts them descending by the number of stars.
+      parameters:
+        - name: limit
+          description: Limits the number of repositories returned.
+          in: query
+          schema:
+            type: integer
+            minimum: 10
+            maximum: 100
+        - name: created_after
+          description: |
+            Filters the list of repositories to only return repositories created from that date onwards. The date needs
+            follow the `YYYY-MM-DD` format and needs to be either today or a day in the past.
+          in: query
+          schema:
+            type: string
+        - name: language
+          description: Filters the list of repositories to only return repositories with a specific language.
+          in: query
+          schema:
+            type: string
+      responses:
+        200:
+          description: A list of repositories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  required: [ "name", "url", "stars", "created_at" ]
+                  properties:
+                    name:
+                      type: string
+                      description: The name of the repository.
+                      example: "spring-projects/spring-graphql"
+                    url:
+                      type: string
+                      description: The URL of the repository.
+                      example: "https://github.com/spring-projects/spring-graphql"
+                    stars:
+                      type: number
+                      description: The number of stars of the repository.
+                      example: 1423
+                    language:
+                      type: string
+                      description: The language of the code in the repository.
+                      example: "Java"
+                    created_at:
+                      type: string
+                      format: date
+                      description: The date the repository was created.
+                      example: "2020-07-20"
+        400:
+          description: A validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+        502:
+          description: An error or timeout with the GitHub API
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error"
+components:
+  schemas:
+    error:
+      type: object
+      required: [ "type", "title", "status", "detail", "instance" ]
+      properties:
+        type:
+          type: string
+          description: The URI reference of the problem type.
+          example: "http://localhost:9123/repositories"
+        title:
+          type: string
+          description: A short, human-readable summary of the problem type.
+          example: "Bad Gateway"
+        status:
+          type: number
+          description: The HTTP status code.
+          example: 502
+        detail:
+          type: string
+          description: A human-readable explanation specific to this occurrence of the problem.
+          example: "Received error from GitHub API"
+        instance:
+          type: string
+          description: A URI reference that identifies the specific occurrence of the problem.
+          example: "/repositories"
